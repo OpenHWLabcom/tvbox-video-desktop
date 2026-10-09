@@ -1,0 +1,191 @@
+<!doctype html><html lang='zh'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>安装教程 · OpenHW Lab</title><style>
+:root{color-scheme:light}
+body{font-family:'Noto Sans CJK SC','Noto Sans CJK','WenQuanYi Zen Hei',sans-serif;
+ max-width:820px;margin:0 auto;padding:32px 28px;color:#1c2530;line-height:1.75;font-size:15px}
+h1{font-size:26px;border-bottom:3px solid #2f6fd0;padding-bottom:10px;color:#16324f}
+h2{font-size:21px;margin-top:30px;border-left:5px solid #2f6fd0;padding-left:10px;color:#16324f}
+h3{font-size:17px;margin-top:22px;color:#23496e}
+code{background:#eef2f7;border:1px solid #dbe3ec;border-radius:4px;padding:1px 5px;font-family:'DejaVu Sans Mono',monospace;font-size:13px}
+pre{background:#0f1a2b;color:#d6e3f5;border-radius:8px;padding:12px 14px;overflow:auto}
+pre code{background:none;border:0;color:inherit;padding:0}
+blockquote{margin:10px 0;padding:8px 14px;background:#fff7e6;border-left:4px solid #e0a92c;color:#5b4a20;border-radius:0 6px 6px 0}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+th,td{border:1px solid #cbd6e4;padding:6px 10px;text-align:left}
+th{background:#eef4fb}
+a{color:#2f6fd0}
+hr{border:0;border-top:1px solid #d8e0ea;margin:22px 0}
+.cover{text-align:center;padding:40px 0 20px}
+.cover .logo{font-size:15px;letter-spacing:6px;color:#2f6fd0;font-weight:bold}
+.cover h1{border:0;font-size:30px;margin:10px 0}
+</style></head><body><div class='cover'><div class='logo'>OpenHW Lab</div><h1>视频追剧版桌面小电脑 · 安装教程</h1><p style='color:#5b6b7d'>把安卓机顶盒变成一台小电脑</p></div><hr><h1>安装教程 —— 把安卓机顶盒变成一台小电脑</h1>
+<blockquote>OpenHW Lab · 面向普通用户/开发者。全程约 30–60 分钟，需要一点动手能力。</blockquote>
+<blockquote>把吃灰的安卓机顶盒，改造成一台「桌面 + 浏览器 + 中文输入 + 手机互传 + 接 U 盘」的小主机。</blockquote>
+<hr>
+<h2>0. 你需要</h2>
+<ul>
+<li>一台<b>安卓机顶盒</b>（建议 Android 4.4+，<b>已 root</b>；本项目在 海思 Hi3798MV100 / 中兴微 ZX296715 实测）。</li>
+<li>一台电视/显示器 + 一个 USB 鼠标（强烈建议）、USB 键盘。</li>
+<li>一台电脑（用来跑 adb 推文件），或一个 U 盘。</li>
+<li>可选：U 盘/移动硬盘（接盒子看片、存文件）。</li>
+</ul>
+<blockquote>⚠️ 不同盒子的「开 ADB」「init 自启位置」不一样。本教程给通用做法，遇到差异请按你的 ROM 调整。</blockquote>
+<blockquote>⚠️ 本改造<b>不刷机、不改 system 分区</b>（除了个别只读挂载），风险低，随时可恢复。</blockquote>
+<hr>
+<h2>1. 先认清你的盒子（1 分钟）</h2>
+<p>在盒子上开一个终端（或用后面的 adb），执行：</p>
+<pre><code>getprop ro.product.cpu.abi        # arm64 / armeabi-v7a —— 决定能装什么
+getprop ro.build.version.release   # 安卓版本
+getprop ro.build.version.sdk        # API 级别
+cat /proc/meminfo | head -3
+df -k</code></pre>
+<p>记下：<b>架构 / 安卓版本 / 内存 / 分区</b>。老盒子最常见：armv7、1GB 内存、8GB eMMC、Android 4.4。</p>
+<hr>
+<h2>2. 打开控制通道（ADB）</h2>
+<p><b>盒子开 ADB 调试</b>：一般在「设置 → 关于/开发者选项」，或厂家的「运维调试」里。有的盒子会弹一个<b>随机码/计算码</b>，需要用厂商工具算一下（见你盒子的说明）。</p>
+<p><b>电脑连盒子</b>（同一个局域网，把 IP 换成你的）：</p>
+<pre><code>adb connect 192.168.1.100:5555
+adb devices            # 看到设备就 OK</code></pre>
+<blockquote>若盒子的 init 没有 adbd，需要手动拉起（root）：</blockquote>
+<blockquote>```sh</blockquote>
+<blockquote>setprop service.adb.tcp.port 5555 ; /sbin/adbd &amp;</blockquote>
+<blockquote>```</blockquote>
+<blockquote>串口(TTL)始终是「生命线」：实在连不上就用 USB-TTL(115200) 直连调试口。</blockquote>
+<hr>
+<h2>3. 装「一键安装」需要的文件</h2>
+<p>解压本安装包，把电脑和盒子连好后，在<b>安装文件</b>目录执行：</p>
+<pre><code>./一键安装.sh 192.168.1.100     # 换成你的盒子 IP</code></pre>
+<p>它会自动：推文件 → 装桌面 → 系统瘦身 → 内存扩容。</p>
+<p>不想用脚本的话，就按下面第 4–8 步手动做（内容完全一样）。</p>
+<hr>
+<h2>4. 系统瘦身（去掉广告/无用后台）</h2>
+<p>老盒子空间和内存都很紧，先把运营商商店/首页/升级/广告等禁用或卸载。</p>
+<pre><code>adb shell 'sh /data/瘦身.sh'     # 脚本里可自己改列表</code></pre>
+<ul>
+<li>系统预装应用<b>只能禁用</b>：<code>pm disable &lt;包名&gt;</code>；第三方可以 <code>pm uninstall &lt;包名&gt;</code>。</li>
+<li>先看清楚有哪些：<code>pm list packages</code>。</li>
+<li>清垃圾腾空间：删旧的系统镜像/安装包/日志（<code>df -k</code> 看谁占地方）。</li>
+</ul>
+<hr>
+<h2>5. 内存扩容（把「存储当内存」）</h2>
+<p>1GB 内存跑桌面/浏览器会不够，用<b>分层交换</b>扩容：</p>
+<pre><code>adb shell 'sh /data/扩容.sh'</code></pre>
+<p>原理：<code>zram(压缩内存, 最快) &gt; /cache/swapfile &gt; /sdcard/swapfile(最大)</code>，越前面越先用。</p>
+<blockquote>⚠️ swap 文件要放在 <b>ext4</b> 分区；<code>/proc/swaps</code> 里记的是真实路径。</blockquote>
+<hr>
+<h2>6. 搭建 Linux 子系统（可选，但推荐）</h2>
+<p>桌面/浏览器用安卓自带的也行；想要一台真正的小主机，就装一个 <b>Ubuntu chroot</b>：</p>
+<ol>
+<li>准备一个 Ubuntu 根文件系统镜像（armhf/arm64 对应你的架构），放到盒子 <code>/sdcard/linux.img</code>。</li>
+<li><code>losetup</code> + <code>mount</code> 挂到 <code>/data/linux</code>，<code>chroot</code> 进去。</li>
+<li>在子系统里装：<code>openssh-server</code>、<code>python3</code>（互传/工具服务要用）、<code>ntfs-3g</code>（认 U 盘）。</li>
+<li>开机由 <code>3-开机自启.sh</code> 自动挂载并拉起服务。</li>
+</ol>
+<blockquote>详细做法与踩坑见 <b>开发者资料/系统改造手册.md</b> 的「Linux 子系统」一节。</blockquote>
+<hr>
+<h2>7. 装桌面、设为开机桌面</h2>
+<pre><code>adb install -r 桌面.apk
+# 或： adb push 桌面.apk /data/桌面.apk &amp;&amp; adb shell 'pm install -r /data/桌面.apk'</code></pre>
+<p><b>设为开机桌面</b>（两种任选）：</p>
+<ul>
+<li>最简单：按 Home 键时系统问「用哪个桌面」→ 选<b>桌面</b> → 「始终」。</li>
+<li>或有 root：<code>pm list packages | grep launcher</code> 看原桌面包名 → <code>pm disable &lt;原桌面&gt;</code>。</li>
+</ul>
+<p>桌面功能：图标网格、双击打开、可拖动、右键菜单；顶部有开始/任务/返回/关机等。</p>
+<p>图标：<b>浏览器</b> / 外接U盘 / 音乐 / 回收站 / 程序和功能 / 系统清理 / 显示设置 / 设置 / 传文件。</p>
+<hr>
+<h2>8. 局域网互传 + 接 U 盘</h2>
+<p><b>手机 ⇄ 盒子 传文件</b>（不用微信、不用数据线）：</p>
+<ul>
+<li>手机浏览器打开 <code>http://&lt;盒子IP&gt;:8890/</code>，可上传/下载/发文字/看图。</li>
+<li>用 <code>5-局域网互传.py</code>（纯标准库，零依赖）。</li>
+</ul>
+<p><b>接 U 盘</b>：FAT32 的 U 盘直接就能认；NTFS/exFAT 需要 Linux 子系统里装 <code>ntfs-3g</code> 挂载（见手册）。</p>
+<hr>
+<h2>9. 浏览器 &amp; 中文输入法（可选）</h2>
+<ul>
+<li><b>浏览器</b>：装一个能在你安卓版本上跑的火狐（老内核可选“多语言版”以支持中文界面）；想要桌面版网页，给它的 profile 写 <code>user.js</code> 换桌面 UA。</li>
+<li><b>中文输入法</b>：装一个带 arm 库的输入法（如搜狗 10.11），并用 <code>ime set &lt;输入法&gt;</code> 启用。</li>
+<li>想「不弹软键盘、纯硬件键盘打字」：在桌面「显示设置」里把输入方式设为<b>实体键盘</b>。</li>
+</ul>
+<hr>
+<h2>10. 开机自启 + 兜底（一开机全就位）</h2>
+<ol>
+<li>把 <code>3-开机自启.sh</code> 放到盒子 <code>/data/startlinux.sh</code>，<code>4-开机兜底.sh</code> 放到 <code>/data/bootfix.sh</code>。</li>
+<li>在盒子的 init 里加一行（<b>文件名按你 ROM 来</b>，很多盒子是 <code>/system/etc/init.*.sh</code> 或 <code>install-recovery.sh</code>）：</li>
+</ol>
+<p>   ```sh</p>
+<p>   sh /data/startlinux.sh &amp;</p>
+<p>   ```</p>
+<ol>
+<li>重启盒子复查：Linux 子系统已挂、SSH/互传/工具服务在跑、桌面在前台。</li>
+</ol>
+<hr>
+<h2>完成！日常使用</h2>
+<ul>
+<li>开机自动进桌面；鼠标键盘即用。</li>
+<li>手机开 <code>http://&lt;盒子IP&gt;:8890/</code> 传文件。</li>
+<li>想看视频/照片：插 U 盘，桌面「外接U盘」里浏览。</li>
+</ul>
+<hr>
+<h2>升级 / 恢复</h2>
+<ul>
+<li><b>升级桌面</b>：重新 <code>adb install -r 桌面.apk</code>（数据不丢）。</li>
+<li><b>恢复原样</b>：<code>pm enable &lt;被你禁用的包名&gt;</code>；把 init 里那行 <code>startlinux.sh</code> 删掉即可。</li>
+<li>详尽的原理、命令与踩坑都在 <b>开发者资料/</b> 里。</li>
+</ul>
+<hr>
+<p>—— OpenHW Lab</p>
+<hr>
+<h1>常见问题</h1>
+<p><b>Q：装不上 / “解析包错误”</b></p>
+<ul>
+<li>盒子安卓版本要 ≥ 4.1（本项目 targetSdk 19）。</li>
+<li>apk 要完整；用本包自带的 <code>桌面.apk</code>。</li>
+</ul>
+<p><b>Q：提示“未知来源 / 不允许安装”</b></p>
+<ul>
+<li>设置里打开「允许未知来源（允许安装非市场应用）」再装。</li>
+</ul>
+<p><b>Q：开机不自动进桌面</b></p>
+<ul>
+<li>按 Home 键，系统问“用哪个桌面”时选<b>桌面</b> → 始终。</li>
+<li>有 root：<code>pm list packages | grep launcher</code> 看原桌面包名 → <code>pm disable &lt;包名&gt;</code>。</li>
+<li>确认 init 自启那行已加（见教程第 10 步）。</li>
+</ul>
+<p><b>Q：开机卡在“正在升级/正在启动”的弹窗</b></p>
+<ul>
+<li>这是 ROM 的开机弹窗把桌面挡住了。<code>4-开机兜底.sh</code> 会自动反复关闭它并拉起桌面；确认它在 <code>/data/bootfix.sh</code> 且被 <code>startlinux.sh</code> 调用。</li>
+</ul>
+<p><b>Q：内存不够、卡、后台被杀</b></p>
+<ul>
+<li>跑一遍 <code>2-内存扩容.sh</code>（zram + swap）。确认 <code>cat /proc/swaps</code> 里三层都在。</li>
+</ul>
+<p><b>Q：手机打不开 <code>http://&lt;盒子IP&gt;:8890/</code></b></p>
+<ul>
+<li>手机和盒子要在<b>同一 WiFi/局域网</b>；盒子 IP 在桌面「设置」或路由器里看。</li>
+<li>确认互传服务在跑（<code>3-开机自启.sh</code> 里那行 / 手动 <code>python3 /root/transfer.py</code>）。</li>
+</ul>
+<p><b>Q：U 盘插上认不到 / 提示已拔出</b></p>
+<ul>
+<li>FAT32 直接认；NTFS/exFAT 要用 Linux 子系统里 <code>ntfs-3g</code> 挂载（见手册）。</li>
+</ul>
+<p><b>Q：鼠标/键盘用不了</b></p>
+<ul>
+<li>这 ROM 通常只认 USB 鼠标+键盘（无触摸）。插 USB 口即可；有的盒子对供电挑，用带供电的 HUB。</li>
+</ul>
+<p><b>Q：装了自带浏览器打不开大网站</b></p>
+<ul>
+<li>老内核跑不动现代大网站是常态；用桌面「浏览器」打开简化页，或换能在你安卓版本上跑的火狐。</li>
+</ul>
+<p><b>Q：会不会联网/上传数据？</b></p>
+<ul>
+<li>桌面与脚本<b>完全离线、不联网、不上传</b>。只有「手机互传」走局域网。</li>
+</ul>
+<p><b>Q：想恢复原来的样子</b></p>
+<ul>
+<li><code>pm enable &lt;被你禁用的包名&gt;</code>；删掉 init 里 <code>startlinux.sh</code> 那行；卸载桌面 <code>pm uninstall com.openhwlab.desktop</code>。</li>
+</ul>
+<p><b>Q：改了桌面包名/换设备后桌面不自动起</b></p>
+<ul>
+<li>同步改 <code>4-开机兜底.sh</code> 里的 <code>HOME_PKG</code> 为新包名。</li>
+</ul><hr><p style="text-align:center;color:#8493a5;font-size:13px">OpenHW Lab</p></body></html>

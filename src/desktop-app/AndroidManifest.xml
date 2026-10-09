@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.openhwlab.desktop"
+    android:versionCode="1"
+    android:versionName="1.0">
+  <uses-sdk android:minSdkVersion="17" android:targetSdkVersion="19" />
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <application android:label="桌面" android:icon="@android:drawable/sym_def_app_icon">
+    <activity android:name=".MainActivity"
+        android:label="桌面"
+        android:launchMode="singleTask"
+        android:screenOrientation="landscape"
+        android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize"
+        android:exported="true"
+        android:windowSoftInputMode="adjustResize|stateHidden">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.HOME" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+    <activity android:name=".WebActivity"
+        android:label="网页窗口"
+        android:screenOrientation="landscape"
+        android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize" />
+    <activity android:name=".SettingsActivity"
+        android:label="显示设置"
+        android:screenOrientation="landscape"
+        android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize" />
+    <activity android:name=".ProgramsActivity"
+        android:label="程序和功能"
+        android:screenOrientation="landscape"
+        android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize" />
+    <activity android:name=".CleanActivity"
+        android:label="系统清理"
+        android:screenOrientation="landscape"
+        android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize" />
+    <activity android:name=".RecycleBinActivity"
+        android:label="回收站"
+        android:screenOrientation="landscape"
+        android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize" />
+  </application>
+</manifest>
