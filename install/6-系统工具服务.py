@@ -120,14 +120,14 @@ class H(BaseHTTPRequestHandler):
             r = apply_disp(q.get("a", [""])[0], q.get("k", [""])[0], q.get("v", [""])[0])
         else:
             app = q.get("app", [""])[0]
-            if app == "poweroff":   r = sh(AND + "/reboot -p")
+            if app == "poweroff":   r = sh("%s/am start -a android.intent.action.ACTION_REQUEST_SHUTDOWN --ez android.intent.extra.KEY_CONFIRM false" % AND)
             elif app == "reboot":   r = sh(AND + "/reboot")
             elif app in ("suspend", "sleep", "hibernate"): r = sh(AND + "/input keyevent 26")
             elif app == "suspendmem": r = sh("echo mem > /sys/power/state")
             elif app == "home":     r = sh(AND + "/am start -a android.intent.action.MAIN -c android.intent.category.HOME")
             elif app == "back":     r = sh(AND + "/input keyevent 4")
             elif app == "tasks":    r = sh(AND + "/input keyevent 187")
-            elif app == "close":    r = sh(AND + "/am force-stop com.openhwlab.desktop")
+            elif app == "close":    r = sh(AND + "/sh /data/close_fg.sh")
             elif app == "enter":    r = sh(AND + "/input keyevent 66")
             elif app == "play":     r = sh("%s/am start -a android.intent.action.VIEW -d 'file://%s' -t video/mp4" % (AND, q.get("f", [""])[0]))
             elif app == "wps":      r = sh("%s/am start -n cn.wps.moffice_eng/cn.wps.moffice.main.local.HomeRootActivity" % AND)

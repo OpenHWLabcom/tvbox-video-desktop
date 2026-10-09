@@ -38,6 +38,7 @@ echo "  如果你的盒子已建好 Linux 子系统(/data/linux)，把互传与�
 adb push "$HERE/5-局域网互传.py" /data/linux/root/transfer.py 2>/dev/null || \
   echo "  ⚠️ /data/linux 不存在：先看教程“搭建 Linux 子系统”一节"
 adb push "$HERE/6-系统工具服务.py" /data/linux/root/boxctl.py 2>/dev/null || true
+adb push "$HERE/close_fg.sh"        /data/close_fg.sh 2>/dev/null || true
 
 say "配置开机自启（各 ROM 的 init 钩子文件名不同，二选一或都加）"
 echo "  在盒子里执行（示例，把 <init脚本> 换成你 ROM 的：如 /system/etc/init.*.sh 或 install-recovery.sh）："
